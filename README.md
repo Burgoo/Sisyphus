@@ -16,3 +16,12 @@ PHP Server: Open file in browser
 
 Extension : PHP Intellisense, make sure to disable the basic php Intellisense to take advantage of the the extension
 
+[git]
+
+1. use terminal 
+2. create a new folder
+3. run the following git command, this will clone the repository to your local disk
+
+git clone https://github.com/Burgoo/Sisyphus.git
+
+
