@@ -25,3 +25,5 @@ Extension : PHP Intellisense, make sure to disable the basic php Intellisense to
 git clone https://github.com/Burgoo/Sisyphus.git
 
 
+
+Added a index.php to show what the current php configuration 
