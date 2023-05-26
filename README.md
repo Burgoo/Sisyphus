@@ -34,3 +34,4 @@ git clone https://github.com/Burgoo/Sisyphus.git
 
 
 Added a index.php to show what the current php configuration 
+

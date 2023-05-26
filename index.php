@@ -1,5 +1,7 @@
 <?php 
 
-# this is just a simple php to show the php current configuration settings 
+require_once("config.php");
 
-phpinfo();
+require_once("code/autoload.php");
+
+include("./tests/mysqldataprovidertests.php");
