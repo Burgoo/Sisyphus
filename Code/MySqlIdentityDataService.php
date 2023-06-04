@@ -8,11 +8,13 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 {
 	private $conn ;  
 
-	private $log;
+	private $Log;
 
 	function __construct()
 	{
-		$log = $App->DependencyContainer->Resolve("ILogService");
+		global $App;
+
+		$Log = $App->GetDependencyContainer()->Resolve("ILogService");
 	}
 
 	public function Open()
