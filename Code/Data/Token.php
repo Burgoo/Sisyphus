@@ -4,11 +4,38 @@ namespace Data;
 
 class Token
 {
-	var $ID;
-	var $TokenType; # auth, activation, password reset, etc
-	var $ObjectID;
-	var $TokenKey;
-	var $Created;
+	/**
+	* Unique id
+	*/
+	var $ID;	
+
+	/**
+	* auth, activation, password reset, etc
+	*/
+	var $TokenType;
+
+	/**
+	* the object id the token is related to, ie user.
+	*/
+	var $ObjectID; 
+
+	/**
+	* public token
+	*/
+	var $TokenKey;  
+
+	/**
+	* created date, used for concurrency
+	*/
+	var $Created;	
+
+	/**
+	* updated date, used for concurrency
+	*/
 	var $Updated;
-	var $Expires; # when the token will expires in seconds
+
+	/**
+	 * Time in seconds from the Updated date when the token will expire.
+	 */
+	var $Expires; 
 }
