@@ -182,3 +182,34 @@ class MySqlIdentityDataServiceTests extends UnitTestBase
 $t = new MySqlIdentityDataServiceTests();
 
 $t->Run();
+
+echo $t->Start->getTimeStamp();
+echo $t->Stop->getTimeStamp();
+echo $t->TotalTime;
+
+
+function format($data) 
+{
+    echo "<table>";
+    foreach($data as $key => $row)
+    {
+        echo "<tr>";
+        echo "<td>";
+
+        echo $key;
+        echo "</td>";
+    
+        foreach($row as $colkey => $col)
+        {
+            echo "<td>";
+            echo $col;
+            echo "</td>";
+        }
+
+        echo "</td>";
+    }
+
+    echo "</table>";
+}
+
+format($t->Results);

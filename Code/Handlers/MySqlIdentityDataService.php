@@ -2,7 +2,6 @@
 
 namespace Handlers;
 
-
 /*
 
 every record requires a key to be used for updates and deletes
@@ -22,6 +21,11 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$this->Log = $Application->Resolve("\Services\ILogService");
 	}
 
+	private function _LogError()
+	{
+		$this->Log->Write('Connection error: ' . $this->conn->connect_error, "SQL Error");
+	}
+
 	public function Open()
 	{
 		$this->conn = new \mysqli
@@ -32,9 +36,9 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 			$this->Config->DatabaseName
 		); 
 		
-		if ($this->conn->connect_error) {
-			/* Use your preferred error logging method here */
-			$this->Log->Write('Connection error: ' . $this->conn->connect_error);
+		if ($this->conn->connect_error) 
+		{
+			$this->_LogError(); 
 		}
 	}
 
@@ -51,7 +55,11 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 
 		$result = $this->conn->query($sql);
 
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
 		$rtrn = $result->fetch_object("Data\User");
 		
@@ -65,7 +73,11 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 
 		$result = $this->conn->query($sql);
 
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
 		$rtrn = $result->fetch_object("Data\User");
 		
@@ -81,14 +93,13 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{Email}", $this->conn->real_escape_string($User->Email), $sql); 
 		$sql = str_ireplace("{PasswordHash}", $this->conn->real_escape_string($User->PasswordHash), $sql); 
 
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+
+		if ($result === false)
 		{
-			$this->Log->Write("New record created successfully", "CreateUser");
-		} 
-		else 
-		{
-			$this->Log->Write("Error: " . $sql . $this->conn->error, "CreateUser");
-		}		
+			$this->_LogError(); 
+			return false;
+		}
 
 		return $this->GetUserByID($this->conn->insert_id);
 	}
@@ -110,15 +121,14 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{PasswordHash}", $this->conn->real_escape_string($User->PasswordHash), $sql); 
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($User->ID), $sql); 
 
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
-		}	
-		
+			$this->_LogError(); 
+			return false;
+		}
+
 		return $this->GetUserByID($User->ID);
 	}
 
@@ -130,13 +140,12 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($User->ID), $sql); 
 		
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->_LogError(); 
+			return false;
 		}
 	}
 
@@ -146,9 +155,13 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($ID), $sql); 
 
-		$result = $this->conn->query($sql);
-
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
+		$result = $this->conn->query($sql);		$result = $this->conn->query($sql);
+		
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
 		$rtrn = $result->fetch_object("Data\Role");
 		
@@ -162,8 +175,12 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{Name}", $this->conn->real_escape_string($Name), $sql); 
 
 		$result = $this->conn->query($sql);
-
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
+		
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
 		$rtrn = $result->fetch_object("Data\Role");
 		
@@ -176,15 +193,13 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 
 		$sql = str_ireplace("{Name}", $this->conn->real_escape_string($Role->Name), $sql); 
 
+		$result = $this->conn->query($sql);
 		
-		if ($this->conn->query($sql) === TRUE) 
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
-		}		
+			$this->_LogError(); 
+			return false;
+		}
 
 		return $this->GetRoleByID($this->conn->insert_id);
 	}
@@ -200,14 +215,13 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{Name}", $this->conn->real_escape_string($Role->Name), $sql); 
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($Role->ID), $sql); 
 
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
-		}		
+			$this->_LogError(); 
+			return false;
+		}
 
 		return $this->GetRoleByID($Role->ID);
 	}
@@ -220,14 +234,15 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($Role->ID), $sql); 
 		
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->_LogError(); 
+			return false;
 		}
+
+		return $result;
 	}
 
     function CreateUserRole(\Data\UserRole $UserRole)
@@ -237,15 +252,14 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{UserID}", $this->conn->real_escape_string($UserRole->UserID), $sql); 
 		$sql = str_ireplace("{RoleID}", $this->conn->real_escape_string($UserRole->RoleID), $sql); 
 
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->_LogError(); 
+			return false;
 		}		
-
+		
 		return $this->GetUserRoleByID($this->conn->insert_id);
 	}
 	
@@ -262,14 +276,13 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{RoleID}", $this->conn->real_escape_string($UserRole->RoleID), $sql); 
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($UserRole->ID), $sql); 
 
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
-		}		
+			$this->_LogError(); 
+			return false;
+		}
 
 		return $this->GetUserRoleByID($UserRole->ID);
 	}
@@ -282,14 +295,15 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($UserRole->ID), $sql); 
 		
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->_LogError(); 
+			return false;
 		}
+
+		return true;
 	}
 
 	function GetUserRoleByID(string $ID)
@@ -300,10 +314,16 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 
 		$result = $this->conn->query($sql);
 
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
 		$rtrn = $result->fetch_object("Data\Role");
-		
+
 		return $rtrn;
 	}
 	
@@ -314,10 +334,14 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{UserID}", $this->conn->real_escape_string($UserID), $sql); 
 
 		$result = $this->conn->query($sql);
+		
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
-
-		$rtrn = $result->fetch_object("Data\Role");
+		$rtrn = $result->fetch_object("\Data\Role");
 		
 		return $rtrn;
 	}
@@ -329,10 +353,14 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{RoleID}", $this->conn->real_escape_string($RoleID), $sql); 
 
 		$result = $this->conn->query($sql);
+		
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
-
-		$rtrn = $result->fetch_object("Data\Role");
+		$rtrn = $result->fetch_object("\Data\Role");
 		
 		return $rtrn;
 	}
@@ -347,13 +375,12 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{TokenKey}", $this->conn->real_escape_string($Token->TokenKey), $sql); 
 		$sql = str_ireplace("{Expires}", $this->conn->real_escape_string($Token->Expires), $sql); 
 
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->_LogError(); 
+			return false;
 		}
 
 		return $this->GetTokenByID($this->conn->insert_id);
@@ -375,18 +402,16 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{TokenKey}", $this->conn->real_escape_string($Token->TokenKey), $sql); 
 		$sql = str_ireplace("{Expires}", $this->conn->real_escape_string($Token->Expires), $sql); 
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($Token->ID), $sql); 
- 
-		if ($this->conn->query($sql) === TRUE) 
+
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->_LogError(); 
+			return false;
 		}
 
 		return $this->GetTokenByID($Token->ID);
-		
 	}
 
 	function DeleteToken(\Data\Token $Token)
@@ -397,14 +422,16 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($Token->ID), $sql); 
 		
-		if ($this->conn->query($sql) === TRUE) 
+		$result = $this->conn->query($sql);
+		
+		if ($result === false)
 		{
-			echo "New record created successfully";
-		} 
-		else 
-		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->_LogError(); 
+			return false;
 		}
+
+		return true;
+
 	}
 	
 	function GetTokenByID($ID)
@@ -414,10 +441,14 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{ID}", $this->conn->real_escape_string($ID), $sql); 
 
 		$result = $this->conn->query($sql);
+		
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
-		if ($result === false) die('Invalid query: ' . $this->conn->error);
-
-		$rtrn = $result->fetch_object("Data\Token");
+		$rtrn = $result->fetch_object("\Data\Token");
 		
 		return $rtrn;
 	}
@@ -429,8 +460,12 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		$sql = str_ireplace("{TokenKey}", $this->conn->real_escape_string($TokenKey), $sql); 
 
 		$result = $this->conn->query($sql);
-
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
+		
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
 		$rtrn = $result->fetch_object("Data\Token");
 		
@@ -445,10 +480,14 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 
 		$result = $this->conn->query($sql);
 
-		if ($result === false) die('Invalid query: ' . $this->conn->error());
+		if ($result === false)
+		{
+			$this->_LogError(); 
+			return false;
+		}
 
 		$rtrn = $result->fetch_object("Data\Token");
-		
+
 		return $rtrn;
 	}
 }

@@ -13,7 +13,10 @@ abstract class UnitTestBase implements IUnitTest
     abstract function Initialize();
     abstract function Terminate();
 
-    var $Tests = [];
+    public $Results = [];
+    public $Start;
+    public $Stop;
+    public $TotalTime;
 
     function _GenerateString($length)
     {
@@ -23,10 +26,11 @@ abstract class UnitTestBase implements IUnitTest
 
     public function Run()
     {
-        $this->Initialize();
+        $this->Start = new \DateTime();
 
+        $this->Initialize();
         $arr = get_class_methods($this);
-    
+        
         foreach($arr as $key=>$val)
         {
             if ($val == "Terminate" || $val == "Initialize" || substr($val, 0, 1) == "_" || $val == "Run")
@@ -35,11 +39,17 @@ abstract class UnitTestBase implements IUnitTest
             }
             else
             {
-                echo "<br/>Executing $val";
-                $this->$val();
+                $start = date('d-m-y h:i:s');
+                $result = $this->$val();
+                $stop = date('d-m-y h:i:s');
+
+                $this->Results[$val] = array ("start" => $start, "stop" => $stop, "result" => $result);
             }
         }
 
         $this->Terminate();
+
+        $this->Stop = new \DateTime();
+        $this->TotalTime = $this->Stop->getTimeStamp() - $this->Start->getTimeStamp();
     }
 }
