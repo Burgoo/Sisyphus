@@ -1,4 +1,8 @@
 <?php
+
+namespace Handlers;
+
+
 /*
 
 every record requires a key to be used for updates and deletes
@@ -7,23 +11,30 @@ every record requires a key to be used for updates and deletes
 class MySqlIdentityDataService implements \Services\IIdentityDataService
 {
 	private $conn ;  
-
+	private $Config;
 	private $Log;
 
 	function __construct()
 	{
-		global $App;
+		global $Application;
 
-		$Log = $App->GetDependencyContainer()->Resolve("ILogService");
+		$this->Config = $Application->Resolve("\Configuration\IMySqlIdentityDataServiceConfiguration");
+		$this->Log = $Application->Resolve("\Services\ILogService");
 	}
 
 	public function Open()
 	{
-		$this->conn = new mysqli(DB_SERVER, DB_USER, DB_PASSWORD, DB_NAME);
-
+		$this->conn = new \mysqli
+		(
+			$this->Config->DatabaseServer, 
+			$this->Config->DatabaseUser, 
+			$this->Config->DatabasePassword,
+			$this->Config->DatabaseName
+		); 
+		
 		if ($this->conn->connect_error) {
 			/* Use your preferred error logging method here */
-			error_log('Connection error: ' . $this->conn->connect_error);
+			$this->Log->Write('Connection error: ' . $this->conn->connect_error);
 		}
 	}
 
@@ -72,11 +83,11 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 
 		if ($this->conn->query($sql) === TRUE) 
 		{
-			echo "New record created successfully";
+			$this->Log->Write("New record created successfully", "CreateUser");
 		} 
 		else 
 		{
-			echo "Error: " . $sql . "<br>" . $this->conn->error;
+			$this->Log->Write("Error: " . $sql . $this->conn->error, "CreateUser");
 		}		
 
 		return $this->GetUserByID($this->conn->insert_id);
@@ -219,7 +230,7 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		}
 	}
 
-    function CreateUserRole(Data\UserRole $UserRole)
+    function CreateUserRole(\Data\UserRole $UserRole)
 	{
 		$sql = "insert into User_Roles (UserID, RoleID, Created) select {UserID}, {RoleID}, current_timestamp";
 
@@ -238,7 +249,7 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		return $this->GetUserRoleByID($this->conn->insert_id);
 	}
 	
-	function UpdateUserRole(Data\UserRole $UserRole)
+	function UpdateUserRole(\Data\UserRole $UserRole)
 	{
 		$sql = "update user_roles 
 		set 
@@ -263,7 +274,7 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		return $this->GetUserRoleByID($UserRole->ID);
 	}
 
-	function DeleteUserRole(Data\UserRole $UserRole)
+	function DeleteUserRole(\Data\UserRole $UserRole)
 	{
 		$sql = "update userroles 
 		set Deleted = current_timestamp
@@ -326,7 +337,7 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		return $rtrn;
 	}
 
-	function CreateToken(Data\Token $Token)
+	function CreateToken(\Data\Token $Token)
 	{
 		$sql = "insert into Tokens (TokenType, ObjectID, TokenKey, Expires, Created, Updated) 
 		select '{TokenType}', {ObjectID}, '{TokenKey}', DATE_ADD(current_timestamp, INTERVAL {Expires} second) , current_timestamp, Current_timestamp";
@@ -348,7 +359,7 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		return $this->GetTokenByID($this->conn->insert_id);
 	}
 
-	function UpdateToken(Data\Token $Token)
+	function UpdateToken(\Data\Token $Token)
 	{
 		$sql = "update Tokens 
 		set 
@@ -378,7 +389,7 @@ class MySqlIdentityDataService implements \Services\IIdentityDataService
 		
 	}
 
-	function DeleteToken(Data\Token $Token)
+	function DeleteToken(\Data\Token $Token)
 	{
 		$sql = "update Tokens 
 		set Deleted = current_timestamp

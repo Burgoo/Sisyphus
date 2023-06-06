@@ -25,7 +25,6 @@ class ActivateResponse
 
 }
 
-
 interface IAuthenticationService
 {
 	function Register(RegisterRequest $Request);
